@@ -16697,7 +16697,7 @@ var BABYLON;
             this._previousHasSwiped = false;
             this._currentPickResult = null;
             this._previousPickResult = null;
-            this._isButtonPressed = false;
+            this._totalPointersPressed = 0;
             this._doubleClickOccured = false;
             /** Define this parameter if you are using multiple cameras and you want to specify which one should be used for pointer position */
             this.cameraToUseForPointers = null;
@@ -17498,7 +17498,7 @@ var BABYLON;
                             var _this = this;
                             var pickResult = this.pick(this._unTranslatedPointerX, this._unTranslatedPointerY, function (mesh) { return mesh.isPickable && mesh.isVisible && mesh.isReady() && mesh.actionManager && mesh.actionManager.hasSpecificTrigger(BABYLON.ActionManager.OnLongPressTrigger) && mesh == _this._pickedDownMesh; }, false, this.cameraToUseForPointers);
                             if (pickResult && pickResult.hit && pickResult.pickedMesh) {
-                                if (this._isButtonPressed &&
+                                if (this._totalPointersPressed !== 0 &&
                                     ((new Date().getTime() - this._startingPointerTime) > Scene.LongPressDelay) &&
                                     (Math.abs(this._startingPointerPosition.x - this._pointerX) < Scene.DragMovementThreshold &&
                                         Math.abs(this._startingPointerPosition.y - this._pointerY) < Scene.DragMovementThreshold)) {
@@ -17742,7 +17742,7 @@ var BABYLON;
                 _this._processPointerMove(pickResult, evt);
             };
             this._onPointerDown = function (evt) {
-                _this._isButtonPressed = true;
+                _this._totalPointersPressed++;
                 _this._pickedDownMesh = null;
                 _this._meshPickProceed = false;
                 _this._updatePointerPosition(evt);
@@ -17796,10 +17796,10 @@ var BABYLON;
                 }
             };
             this._onPointerUp = function (evt) {
-                if (!_this._isButtonPressed) {
+                if (_this._totalPointersPressed === 0) {
                     return; // So we need to test it the pointer down was pressed before.
                 }
-                _this._isButtonPressed = false;
+                _this._totalPointersPressed--;
                 _this._pickedUpMesh = null;
                 _this._meshPickProceed = false;
                 _this._updatePointerPosition(evt);
@@ -37417,12 +37417,6 @@ var BABYLON;
         return PathCursor;
     }());
     BABYLON.PathCursor = PathCursor;
-    var AnimationKey = (function () {
-        function AnimationKey() {
-        }
-        return AnimationKey;
-    }());
-    BABYLON.AnimationKey = AnimationKey;
     var Animation = (function () {
         function Animation(name, targetProperty, framePerSecond, dataType, loopMode, enableBlending) {
             this.name = name;
@@ -73099,32 +73093,32 @@ var BABYLON;
         GridMaterial.Parse = function (source, scene, rootUrl) {
             return BABYLON.SerializationHelper.Parse(function () { return new GridMaterial(source.name, scene); }, source, scene, rootUrl);
         };
-        __decorate([
-            BABYLON.serializeAsColor3()
-        ], GridMaterial.prototype, "mainColor", void 0);
-        __decorate([
-            BABYLON.serializeAsColor3()
-        ], GridMaterial.prototype, "lineColor", void 0);
-        __decorate([
-            BABYLON.serialize()
-        ], GridMaterial.prototype, "gridRatio", void 0);
-        __decorate([
-            BABYLON.serializeAsColor3()
-        ], GridMaterial.prototype, "gridOffset", void 0);
-        __decorate([
-            BABYLON.serialize()
-        ], GridMaterial.prototype, "majorUnitFrequency", void 0);
-        __decorate([
-            BABYLON.serialize()
-        ], GridMaterial.prototype, "minorUnitVisibility", void 0);
-        __decorate([
-            BABYLON.serialize()
-        ], GridMaterial.prototype, "opacity", void 0);
-        __decorate([
-            BABYLON.serialize()
-        ], GridMaterial.prototype, "preMultiplyAlpha", void 0);
         return GridMaterial;
     }(BABYLON.PushMaterial));
+    __decorate([
+        BABYLON.serializeAsColor3()
+    ], GridMaterial.prototype, "mainColor", void 0);
+    __decorate([
+        BABYLON.serializeAsColor3()
+    ], GridMaterial.prototype, "lineColor", void 0);
+    __decorate([
+        BABYLON.serialize()
+    ], GridMaterial.prototype, "gridRatio", void 0);
+    __decorate([
+        BABYLON.serializeAsColor3()
+    ], GridMaterial.prototype, "gridOffset", void 0);
+    __decorate([
+        BABYLON.serialize()
+    ], GridMaterial.prototype, "majorUnitFrequency", void 0);
+    __decorate([
+        BABYLON.serialize()
+    ], GridMaterial.prototype, "minorUnitVisibility", void 0);
+    __decorate([
+        BABYLON.serialize()
+    ], GridMaterial.prototype, "opacity", void 0);
+    __decorate([
+        BABYLON.serialize()
+    ], GridMaterial.prototype, "preMultiplyAlpha", void 0);
     BABYLON.GridMaterial = GridMaterial;
 })(BABYLON || (BABYLON = {}));
 
@@ -73358,11 +73352,11 @@ var BABYLON;
             }
             return result;
         };
-        // V1 options
-        GLTFFileLoader.HomogeneousCoordinates = false;
-        GLTFFileLoader.IncrementalLoading = true;
         return GLTFFileLoader;
     }());
+    // V1 options
+    GLTFFileLoader.HomogeneousCoordinates = false;
+    GLTFFileLoader.IncrementalLoading = true;
     BABYLON.GLTFFileLoader = GLTFFileLoader;
     var BinaryReader = (function () {
         function BinaryReader(arrayBuffer) {
@@ -74924,9 +74918,9 @@ var BABYLON;
                     }
                 }
             };
-            GLTFLoader.Extensions = {};
             return GLTFLoader;
         }());
+        GLTFLoader.Extensions = {};
         GLTF1.GLTFLoader = GLTFLoader;
         ;
         BABYLON.GLTFFileLoader.CreateGLTFLoaderV1 = function () { return new GLTFLoader(); };
@@ -75178,10 +75172,10 @@ var BABYLON;
                 }
                 return GLTFUtils._DefaultMaterial;
             };
-            // The GLTF default material
-            GLTFUtils._DefaultMaterial = null;
             return GLTFUtils;
         }());
+        // The GLTF default material
+        GLTFUtils._DefaultMaterial = null;
         GLTF1.GLTFUtils = GLTFUtils;
     })(GLTF1 = BABYLON.GLTF1 || (BABYLON.GLTF1 = {}));
 })(BABYLON || (BABYLON = {}));
@@ -76651,9 +76645,9 @@ var BABYLON;
                 }
                 return babylonTexture;
             };
-            GLTFLoader.Extensions = {};
             return GLTFLoader;
         }());
+        GLTFLoader.Extensions = {};
         GLTF2.GLTFLoader = GLTFLoader;
         BABYLON.GLTFFileLoader.CreateGLTFLoaderV2 = function (parent) { return new GLTFLoader(parent); };
     })(GLTF2 = BABYLON.GLTF2 || (BABYLON.GLTF2 = {}));
@@ -76789,12 +76783,12 @@ var BABYLON;
                 }
                 return false;
             };
-            //
-            // Utilities
-            //
-            GLTFLoaderExtension._Extensions = [];
             return GLTFLoaderExtension;
         }());
+        //
+        // Utilities
+        //
+        GLTFLoaderExtension._Extensions = [];
         GLTF2.GLTFLoaderExtension = GLTFLoaderExtension;
     })(GLTF2 = BABYLON.GLTF2 || (BABYLON.GLTF2 = {}));
 })(BABYLON || (BABYLON = {}));
@@ -76869,12 +76863,12 @@ var BABYLON;
                         });
                     });
                 };
-                /**
-                 * Specify the minimal delay between LODs in ms (default = 250)
-                 */
-                MSFTLOD.MinimalLODDelay = 250;
                 return MSFTLOD;
             }(GLTF2.GLTFLoaderExtension));
+            /**
+             * Specify the minimal delay between LODs in ms (default = 250)
+             */
+            MSFTLOD.MinimalLODDelay = 250;
             Extensions.MSFTLOD = MSFTLOD;
             GLTF2.GLTFLoader.RegisterExtension(new MSFTLOD());
         })(Extensions = GLTF2.Extensions || (GLTF2.Extensions = {}));
