@@ -26,6 +26,7 @@
         public static BaseUrl = "";
         public static CorsBehavior: any = "anonymous";
         public static UseFallbackTexture = true;
+        public static RetryCount = 3;
 
         /**
          * Use this object to register external classes like custom textures or material 
@@ -481,12 +482,13 @@
             return img;
         }
 
-        public static LoadFile(url: string, callback: (data: string | ArrayBuffer, responseURL?: string) => void, progressCallBack?: (data: any) => void, database?: Database, useArrayBuffer?: boolean, onError?: (request?: XMLHttpRequest, exception?: any) => void): Nullable<XMLHttpRequest> {
+        public static LoadFile(url: string, callback: (data: string | ArrayBuffer, responseURL?: string) => void, progressCallBack?: (data: any) => void, database?: Database, useArrayBuffer?: boolean, onError?: (request?: XMLHttpRequest, exception?: any) => void, retry?: boolean): Nullable<XMLHttpRequest> {
             url = Tools.CleanUrl(url);
 
             url = Tools.PreprocessUrl(url);
 
             var request: Nullable<XMLHttpRequest> = null;
+            var retries = retry ? Tools.RetryCount : 0;
 
             var noIndexedDB = () => {
                 request = new XMLHttpRequest();
@@ -509,6 +511,9 @@
 
                         if (req.status >= 200 && req.status < 300 || (!Tools.IsWindowObjectExist() && (req.status === 0))) {
                             callback(!useArrayBuffer ? req.responseText : <ArrayBuffer>req.response, req.responseURL);
+                        } else if (req.status == 0 && retries--){
+                            console.log("Retrying : " + retries);
+                            noIndexedDB();
                         } else { // Failed
                             let e = new Error("Error status: " + req.status + " - Unable to load " + loadUrl);
                             if (onError) {

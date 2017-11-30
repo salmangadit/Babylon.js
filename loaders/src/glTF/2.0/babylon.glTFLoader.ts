@@ -1149,7 +1149,7 @@ module BABYLON.GLTF2 {
                     buffer.loadedData = data;
                     buffer.loadedObservable!.notifyObservers(buffer);
                     buffer.loadedObservable = undefined;
-                });
+                }, true);
             }
         }
 
@@ -1548,7 +1548,7 @@ module BABYLON.GLTF2 {
 
         private _loadImageAsync(context: string, image: IGLTFImage, onSuccess: (data: ArrayBufferView) => void): void {
             if (image.uri) {
-                this._loadUriAsync(context, image.uri, onSuccess);
+                this._loadUriAsync(context, image.uri, onSuccess, true);
             }
             else {
                 const bufferView = GLTFLoader._GetProperty(this._gltf.bufferViews, image.bufferView);
@@ -1560,7 +1560,7 @@ module BABYLON.GLTF2 {
             }
         }
 
-        public _loadUriAsync(context: string, uri: string, onSuccess: (data: ArrayBufferView) => void): void {
+        public _loadUriAsync(context: string, uri: string, onSuccess: (data: ArrayBufferView) => void, retry?: boolean): void {
             if (GLTFUtils.IsBase64(uri)) {
                 onSuccess(new Uint8Array(GLTFUtils.DecodeBase64(uri)));
                 return;
@@ -1586,7 +1586,7 @@ module BABYLON.GLTF2 {
                 this._tryCatchOnError(() => {
                     throw new Error(context + ": Failed to load '" + uri + "'" + (request ? ": " + request.status + " " + request.statusText : ""));
                 });
-            }) as GLTFLoaderRequest;
+            }, retry) as GLTFLoaderRequest;
 
             if (request) {
                 request._loaded = null;
